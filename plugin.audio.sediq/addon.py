@@ -35,7 +35,7 @@ STATIONS = {
 }
 ICON=os.path.join(os.path.dirname(__file__), "icon.png")
 STATIONS_FILE = os.path.join(os.path.expanduser("~"), ".kodi", "sediq.json")
-GST_URL="tcp://127.0.0.1:4953"
+GST_URL="tcp://localhost:4953"
 
 def load_stations():
     """
@@ -95,7 +95,7 @@ def play(freq):
 
     xbmc.log("Setting RTL-GST pipeline to: {} Hz".format(freq), level=xbmc.LOGNOTICE)
     xbmc.executebuiltin('RunScript("{}",{})'.format(*args))
-    xbmc.sleep(1000) # Allow it to boot yo
+    xbmc.sleep(2000) # Allow it to boot yo
     xbmc.log("Attempting to load: {}".format(GST_URL), level=xbmc.LOGNOTICE)
     # Playable item of GST_URL. See: (https://github.com/romanvm/plugin.video.example/blob/master/main.py:206)
     play_item = xbmcgui.ListItem(path=GST_URL)

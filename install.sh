@@ -81,12 +81,6 @@ sudo cat modules.add >> /etc/modules
 sudo cp rtl-sdr.rules /etc/udev/rules.d/99-rtl-sdr.rules
 sudo cp ./blacklist-rtl.conf /etc/modprobe.d/
 ##
-# Install shutdown script to blank RPI screen
-##
-cd  /etc/rc6.d/
-sudo ln -s ${HERE}/shutdown.rc6 ./K99blank
-cd ${OCWD}
-##
 # Install new splash screens
 ##
 sudo cp splash.png splash_sad.png /usr/

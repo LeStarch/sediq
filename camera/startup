@@ -1,5 +1,5 @@
 #!/bin/sh
-VIDEO=`ls /dev/video* | head -1`
+VIDEO="/dev/video0"
 PORT="8085"
 FILE="/home/osmc/Movies/recording.mp4"
 FILE_BK="/home/osmc/Movies/recording-previous.mp4"
