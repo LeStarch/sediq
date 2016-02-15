@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.audio.sediq" name="Sediq" version="0.0.1" provider-name="lestarch">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>audio</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_us">Sediq Radio plugin for Kobi</summary>
+    <description lang="en_us">Provides access to radio reception via Kodi interface. Uses DVD-T USB stick as a software defined radio for capturing FM signals.</description>
+    <disclaimer lang="en_us">Requires rtl_sdr installed</disclaimer>
+    <language></language>
+    <platform>linux</platform>
+    <license></license>
+    <forum></forum>
+    <website></website>
+    <email></email>
+    <source></source>
+  </extension>
+</addon>
