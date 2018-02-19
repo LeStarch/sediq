@@ -5,4 +5,5 @@ PORT="8085"
 while `echo -n`
 do
     gst-launch-1.0 v4l2src device="${VIDEO}" ! omxh264enc ! tcpserversink max-lateness="18000000" port="${PORT}"
+    sleep 1
 done
