@@ -1,0 +1,8 @@
+#!/bin/sh
+VIDEO=`ls /dev/video* | head -1`
+PORT="8085"
+#Loop on starting up the pipeline
+while [[ "1" == "1" ]]
+do
+    gst-launch-1.0 v4l2src device="${VIDEO}" ! omxh264enc ! tcpserversink port="${PORT}"
+done
