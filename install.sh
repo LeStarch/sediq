@@ -15,7 +15,7 @@ sudo apt-get install \
   git \
   vim \
   gstreamer-1.0 \
-  gstreamer-tools \
+  gstreamer1.0-tools \
   gstreamer1.0-plugins-base \
   gstreamer1.0-plugins-good \
   libgtk2.0-dev \
@@ -43,4 +43,7 @@ cd ${OCWD}
 ##
 cd ${KODI}
 ln -s ${HERE}/camera/advancedsettings.xml
+cd ${OCWD}
+cd  /lib/systemd/system/
+sudo ln -s ${HERE}/camera/camera.service
 cd ${OCWD}
