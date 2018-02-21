@@ -1,2 +1,2 @@
 #!/bin/sh
-`dirname ${0}`/rtl_fm_streamer &
+rtl_fm_streamer &

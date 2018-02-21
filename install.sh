@@ -11,6 +11,9 @@ HERE=`cd ${HERE}; pwd`
 sudo apt-get install \
   build-essential \
   gcc \
+  libusb-1.0-0-dev \
+  libev-dev \
+  cmake \
   automake \
   git \
   vim \
@@ -23,6 +26,13 @@ sudo apt-get install \
   libgstreamer-plugins-base1.0-dev \
   rbp-userland-dev-osmc
 ##
+# Update submodules
+##
+OCWD=`pwd`
+cd ${HERE}
+git submodule update --init --recursive
+cd ${OCWD}
+##
 # WGET the source for OMX acceleration
 ##
 wget https://gstreamer.freedesktop.org/src/gst-omx/gst-omx-1.10.4.tar.xz
@@ -34,7 +44,6 @@ make -j4
 ##
 # Link in the installed library
 ##
-OCWD=`pwd`
 cd /usr/lib/arm-linux-gnueabihf/gstreamer-1.0/
 sudo ln -s /usr/local/lib/gstreamer-1.0/libgstomx.so
 cd ${OCWD}
@@ -48,10 +57,12 @@ cd  /lib/systemd/system/
 sudo ln -s ${HERE}/camera/camera.service
 cd ${OCWD}
 ##
-# Add in skin
+# Add in skin, and radio plugins
 ##
 cd /home/osmc/.kodi/addons
 ln -s ${HERE}/skin.sediqskin
+ln -s ${HERE}/plugin.audio.sediq
+ln -s ${HERE}/plugin.service.sediqfm
 cd ${OCWD}
 ##
 # Boot options for iqcaudio
@@ -59,3 +70,12 @@ cd ${OCWD}
 sudo sed -i".bak" -e 's/^\(dtoverlay.*\)/#\1/' \
                   -e 's/^\(dtparam=audio=.*\)/#\1/' \
                   -e '$ s/$/\ndtoverlay=iqaudio-dacplus,auto_mute_amp\ndtparam=audio=off/' /boot/config.txt
+##
+# Install the streamer 
+##
+pwd
+git clone https://github.com/AlbrechtL/rtl_fm_streamer.git
+cd rtl_fm_streamer/
+cmake . -DCMAKE_INSTALL_PREFIX:PATH=/usr 
+make
+sudo make install

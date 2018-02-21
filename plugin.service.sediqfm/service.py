@@ -1,3 +1,4 @@
+import os
 import time
 import subprocess
 import xbmc
@@ -10,7 +11,8 @@ def run():
     '''
     Runs the streaming program
     '''
-    subprocess.call("resources/bin/rtl_fm_streamer.start")
+    subprocess.call(os.path.join(os.path.dirname(__file__),
+                    "resources/bin/rtl_fm_streamer.start"))
 def kill():
     '''
     Kill the streamer
