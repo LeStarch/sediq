@@ -47,3 +47,9 @@ cd ${OCWD}
 cd  /lib/systemd/system/
 sudo ln -s ${HERE}/camera/camera.service
 cd ${OCWD}
+##
+# Add in skin
+##
+cd /home/osmc/.kodi/addons
+ln -s ${HERE}/skin.sediqskin
+cd ${OCWD}
