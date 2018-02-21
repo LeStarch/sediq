@@ -1,0 +1,3 @@
+[submodule "skin.sediqskin"]
+	path = skin.sediqskin
+	url = https://github.com/LeStarch/sediqskin.git
