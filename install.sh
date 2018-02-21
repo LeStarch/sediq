@@ -79,3 +79,6 @@ cd rtl_fm_streamer/
 cmake . -DCMAKE_INSTALL_PREFIX:PATH=/usr 
 make
 sudo make install
+sudo cp rtl-sdr.rules /etc/udev/rules.d/99-rtl-sdr.rules
+sudo cp blacklist-rtl.conf /etc/modprobe.d/
+echo "[INSTALL] Reboot now!"
