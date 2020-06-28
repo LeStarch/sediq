@@ -11,6 +11,8 @@ import os
 import sys
 import copy
 import json
+import time
+import urllib
 import subprocess
 
 import urlparse
@@ -31,7 +33,7 @@ STATIONS = {
     "KIIS": 102.7e6
 }
 STATIONS_FILE = os.path.join(os.path.expanduser("~"), ".kodi", "sediq.json")
-GST_URL="tcp://127.0.0.1:4934"
+GST_URL="tcp://127.0.0.1:4953"
 
 def load_stations():
     """
@@ -54,9 +56,9 @@ def display():
     """
     for station, freq in load_stations().items():
         li = xbmcgui.ListItem("{0} - {1} MHz FM".format(station, freq // 1e6), iconImage='icon.png')
-        li.setProperty("IsPlayable","false")
+        li.setProperty("IsPlayable","true")
         li.setInfo(type = 'Music', infoLabels = {"Title": station + " - " + str(freq // 1e6)})
-        xbmcplugin.addDirectoryItem(handle=__handle__, url="{}?action=play&freq={}".format(__url__, freq),
+        xbmcplugin.addDirectoryItem(handle=__handle__, url="{}?{}".format(__url__, urllib.urlencode({"action": "play", "freq": int(freq)})),
                                     listitem=li, isFolder=False)
     xbmcplugin.endOfDirectory(__handle__)
 
@@ -67,11 +69,18 @@ def play(freq):
     an artificial play URL and pass it into the OSMC/Kodi for playing.
     :param freq: frequency to play
     """
-    subprocess.call([os.path.join(os.path.dirname(__file__), "rtl-gst", freq)])
+    args = [os.path.join(os.path.dirname(__file__), "wrapper.py"), freq]
+
+    xbmc.log("Setting RTL-GST pipeline to: {} Hz".format(freq), level=xbmc.LOGNOTICE)
+    xbmc.executebuiltin('RunScript("{}",{})'.format(*args))
+    xbmc.sleep(1000) # Allow it to boot yo
+    xbmc.log("Attempting to load: {}".format(GST_URL), level=xbmc.LOGNOTICE)
     # Playable item of GST_URL. See: (https://github.com/romanvm/plugin.video.example/blob/master/main.py:206)
     play_item = xbmcgui.ListItem(path=GST_URL)
     # Pass the item to the Kodi player.
     xbmcplugin.setResolvedUrl(__handle__, True, listitem=play_item)
+    #xbmc.executebuiltin('PlayMedia("tcp://127.0.0.1:4953")')
+
 
 def route():
     """
@@ -87,7 +96,7 @@ if __name__ == "__main__":
     """
     Main program.  Hi Lewis!!!
     """
-    xbmc.log("Sediq run with: >{}< >{}< >{}< ".format(__handle__, __url__, __params__), level=xbmc.LOGINFO)
+    xbmc.log("Sediq run with: >{}< >{}< >{}< ".format(__handle__, __url__, __params__), level=xbmc.LOGWARNING)
     xbmcplugin.setContent(__handle__, "audio")
     route()
 
