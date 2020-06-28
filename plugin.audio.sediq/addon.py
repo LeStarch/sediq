@@ -11,11 +11,17 @@ import os
 import sys
 import copy
 import json
+import subprocess
 
+import urlparse
 import xbmc
 import xbmcgui
 import xbmcplugin
 
+# Basic Inputs avaliable at every run
+__url__ = sys.argv[0]
+__handle__ = int(sys.argv[1])
+__params__ = sys.argv[2]
 
 # Stations to load as default
 STATIONS = {
@@ -25,7 +31,7 @@ STATIONS = {
     "KIIS": 102.7e6
 }
 STATIONS_FILE = os.path.join(os.path.expanduser("~"), ".kodi", "sediq.json")
-
+GST_URL="tcp://127.0.0.1:4934"
 
 def load_stations():
     """
@@ -42,27 +48,46 @@ def load_stations():
     return defaults
 
 
-def run(handle):
+def display():
     """
-    Build interface for this plugin
-    :param handle - plugin handle
-    :param params - parameters
+    Displays all known stations as part of the Kodi/OSMC interface.
     """
     for station, freq in load_stations().items():
-        li = xbmcgui.ListItem("{0} - {1} MHz FM".format(station, str(freq // 1e6)), iconImage='icon.png')
+        li = xbmcgui.ListItem("{0} - {1} MHz FM".format(station, freq // 1e6), iconImage='icon.png')
         li.setProperty("IsPlayable","false")
-        li.setInfo(type = 'Music', infoLabels = {"Title": station + " - " + str(freq)})
-        xbmcplugin.addDirectoryItem(handle=handle, listitem=li, isFolder=False)
-    xbmcplugin.endOfDirectory(handle)
+        li.setInfo(type = 'Music', infoLabels = {"Title": station + " - " + str(freq // 1e6)})
+        xbmcplugin.addDirectoryItem(handle=__handle__, url="{}?action=play&freq={}".format(__url__, freq),
+                                    listitem=li, isFolder=False)
+    xbmcplugin.endOfDirectory(__handle__)
 
+
+def play(freq):
+    """
+    First, run the script to start the streaming server and then attempt to plat the known URL. This is done by creating
+    an artificial play URL and pass it into the OSMC/Kodi for playing.
+    :param freq: frequency to play
+    """
+    subprocess.call([os.path.join(os.path.dirname(__file__), "rtl-gst", freq)])
+    # Playable item of GST_URL. See: (https://github.com/romanvm/plugin.video.example/blob/master/main.py:206)
+    play_item = xbmcgui.ListItem(path=GST_URL)
+    # Pass the item to the Kodi player.
+    xbmcplugin.setResolvedUrl(__handle__, True, listitem=play_item)
+
+def route():
+    """
+    Parses the URL and then routes the input based upon it.
+    """
+    parsed = dict(urlparse.parse_qsl(__params__[1:]))
+    if parsed and parsed["action"] == "play":
+        play(parsed["freq"])
+    else:
+        display()
 
 if __name__ == "__main__":
     """
     Main program.  Hi Lewis!!!
     """
-    plugin_url = sys.argv[0]
-    plugin_handle = int(sys.argv[1])
-    xbmc.log("Sediq run with: >{}< >{}< >{}< ".format(plugin_url, plugin_handle, sys.argv[2]), level=xbmc.LOGINFO)
-    xbmcplugin.setContent(plugin_handle, "audio")
-    run(plugin_handle)
+    xbmc.log("Sediq run with: >{}< >{}< >{}< ".format(__handle__, __url__, __params__), level=xbmc.LOGINFO)
+    xbmcplugin.setContent(__handle__, "audio")
+    route()
 
