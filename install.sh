@@ -24,7 +24,9 @@ sudo apt-get install \
   libgtk2.0-dev \
   libgstreamer1.0-dev \
   libgstreamer-plugins-base1.0-dev \
-  rbp-userland-dev-osmc
+  rbp-userland-dev-osmc \
+  rtl-sdr \
+  gstreamer1.0-plugins-bad
 ##
 # Update submodules
 ##
@@ -75,10 +77,10 @@ sudo sed -i".bak" -e 's/^\(dtoverlay.*\)/#\1/' \
 ##
 pwd
 git clone https://github.com/AlbrechtL/rtl_fm_streamer.git
-cd rtl_fm_streamer/
-cmake . -DCMAKE_INSTALL_PREFIX:PATH=/usr 
-make
-sudo make install
+#cd rtl_fm_streamer/
+#cmake . -DCMAKE_INSTALL_PREFIX:PATH=/usr 
+#make
+#sudo make install
 sudo cp rtl-sdr.rules /etc/udev/rules.d/99-rtl-sdr.rules
-sudo cp blacklist-rtl.conf /etc/modprobe.d/
+sudo cp ../blacklist-rtl.conf /etc/modprobe.d/
 echo "[INSTALL] Reboot now!"

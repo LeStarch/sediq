@@ -1,0 +1,3 @@
+#!/bin/bash
+SRC="rtl_fm -f 89.3e6 -M wbfm -s 200000 -r 48000 -"
+$SRC | gst-launch-1.0 -v fdsrc  ! rawaudioparse sample-rate=24000  ! audioconvert ! vorbisenc ! oggmux ! tcpserversink
