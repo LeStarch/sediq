@@ -8,6 +8,7 @@ and use that input to call the system.
 """
 from __future__ import division
 import os
+import re
 import sys
 import copy
 import json
@@ -32,6 +33,7 @@ STATIONS = {
     "KUSC": 91.5e6,
     "KIIS": 102.7e6
 }
+ICON=os.path.join(os.path.dirname(__file__), "icon.png")
 STATIONS_FILE = os.path.join(os.path.expanduser("~"), ".kodi", "sediq.json")
 GST_URL="tcp://127.0.0.1:4953"
 
@@ -50,16 +52,36 @@ def load_stations():
     return defaults
 
 
+def save_stations(stations):
+    """
+    Saves known stations from the default mixed with any stations known in the JSON file.
+    :param stations: dictionary of name to freq in HZ of the station
+    """
+    try:
+        with open(STATIONS_FILE, "w") as file_handle:
+            json.dump(stations, file_handle)
+    except IOError as ioe:
+        xbmc.log("Failed to save stations file: {} with error: {}".format(STATIONS_FILE, ioe), level=xbmc.LOGWARNING)
+
+
 def display():
     """
     Displays all known stations as part of the Kodi/OSMC interface.
     """
     for station, freq in load_stations().items():
-        li = xbmcgui.ListItem("{0} - {1} MHz FM".format(station, freq // 1e6), iconImage='icon.png')
+        human_freq = "{0:.1f}".format(freq / 1e6)
+        li = xbmcgui.ListItem("{0} - {1} MHz FM".format(station, human_freq), iconImage=ICON, thumbnailImage=ICON)
+        li.setProperty('fanart_image', ICON)
         li.setProperty("IsPlayable","true")
-        li.setInfo(type = 'Music', infoLabels = {"Title": station + " - " + str(freq // 1e6)})
+        li.setInfo(type='Music', infoLabels={"Title": station + " - " + str(human_freq)})
         xbmcplugin.addDirectoryItem(handle=__handle__, url="{}?{}".format(__url__, urllib.urlencode({"action": "play", "freq": int(freq)})),
                                     listitem=li, isFolder=False)
+    li = xbmcgui.ListItem("Input Station", iconImage=ICON, thumbnailImage=ICON)
+    li.setProperty('fanart_image', ICON)
+    li.setProperty("IsPlayable","true")
+    li.setInfo(type='Music', infoLabels = {"Title": "Input Station"})
+    xbmcplugin.addDirectoryItem(handle=__handle__, url="{}?{}".format(__url__, urllib.urlencode({"action": "new"})),
+                                listitem=li, isFolder=False)
     xbmcplugin.endOfDirectory(__handle__)
 
 
@@ -79,8 +101,26 @@ def play(freq):
     play_item = xbmcgui.ListItem(path=GST_URL)
     # Pass the item to the Kodi player.
     xbmcplugin.setResolvedUrl(__handle__, True, listitem=play_item)
-    #xbmc.executebuiltin('PlayMedia("tcp://127.0.0.1:4953")')
 
+
+def enter():
+    """
+    Allows the input of custom stations.
+    """
+    reg = re.compile(r"\d{2,3}.\d")
+    station = "nonsense"
+    while station != "" and not reg.match(station):
+        station = xbmcgui.Dialog().input("FM Freq (MHz):", "102.7", xbmcgui.INPUT_ALPHANUM)
+    if station == "":
+        return
+    freq = int(float(station) * 1e6)
+    name = xbmcgui.Dialog().input("Name (Optional):", "", xbmcgui.INPUT_ALPHANUM)
+    if name != "":
+        stations = load_stations()
+        stations[name] = freq
+        xbmc.log("Saving stations: {}".format(stations), level=xbmc.LOGNOTICE)
+        save_stations(stations)
+    play(freq)
 
 def route():
     """
@@ -89,14 +129,14 @@ def route():
     parsed = dict(urlparse.parse_qsl(__params__[1:]))
     if parsed and parsed["action"] == "play":
         play(parsed["freq"])
-    else:
-        display()
+    elif parsed and parsed["action"] == "new":
+        enter()
+    display()
 
 if __name__ == "__main__":
     """
     Main program.  Hi Lewis!!!
     """
-    xbmc.log("Sediq run with: >{}< >{}< >{}< ".format(__handle__, __url__, __params__), level=xbmc.LOGWARNING)
     xbmcplugin.setContent(__handle__, "audio")
     route()
 
