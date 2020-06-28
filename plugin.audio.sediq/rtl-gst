@@ -1,3 +1,22 @@
-#!/bin/bash
-SRC="rtl_fm -f 89.3e6 -M wbfm -s 200000 -r 48000 -"
-$SRC | gst-launch-1.0 -v fdsrc  ! rawaudioparse sample-rate=24000  ! audioconvert ! vorbisenc ! oggmux ! tcpserversink
+#!/bin/sh
+####
+# rtl-gst:
+#
+# A simple script for running the RTL-FM data reader, converting it to OGG/Vorbis format, and hosting it as part of
+# a TCP server. This uses rtl_fm as the source of the data, and GStreamer to encode the data.
+#
+# @author lestarch
+####
+if [ $# -lt 1 ]
+then
+    echo "[ERROR] Must supply a radio frequency to tune to."
+    exit 3
+fi
+SAMPLE_RATE="48000"
+# Command line for rtl_fm
+RTL_FM="rtl_fm -M wbfm -s 200000 -r ${SAMPLE_RATE} -f ${1} -"
+GST_PIPE="gst-launch-1.0 fdsrc  ! rawaudioparse sample-rate=`expr ${SAMPLE_RATE} / 2`  ! audioconvert ! vorbisenc ! oggmux ! tcpserversink"
+# Run the pipeline
+${RTL_FM} | ${GST_PIPE} &
+
+
