@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Constants
+PIN="4"
+PIN_PATH="/sys/class/gpio/gpio${PIN}/"
+BL_POWER_PATH="/sys/class/backlight/rpi_backlight/bl_power"
+
+# Setup PIN visibility and direction
+echo "${PIN}" > /sys/class/gpio/export
+echo "in" > "${PIN_PATH}/direction"
+
+# Main program loop
+let count=0
+while (( 1 ))
+do
+    # If the count has been see 15 times (30 seconds) then shutdown!
+    if (( ${count} >= 15 ))
+    then
+        poweroff
+    fi
+    # On a high-value, the system should reset count and operate as normal
+    else if (( $(cat "${PIN_PATH}/value" ) ))
+    then
+        let count=0
+        echo "1" > "${BL_POWER_PATH}"
+    # On a low-value (off) the car requested shutdown
+    else
+        let count=$count+1
+        echo "0" > "${BL_POWER_PATH}"
+    fi
+done
