@@ -1,0 +1,11 @@
+[Unit]
+Description = Deathclock shutdown service
+After = mediacenter.service
+Wants = network-online.target
+
+[Service]
+Type = simple
+ExecStart = /home/osmc/sediq/deathclock
+
+[Install]
+WantedBy = multi-user.target

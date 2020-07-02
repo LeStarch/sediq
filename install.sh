@@ -57,6 +57,7 @@ ln -s ${HERE}/camera/advancedsettings.xml
 cd ${OCWD}
 cd  /lib/systemd/system/
 sudo ln -s ${HERE}/camera/camera.service
+sudo ln -s ${HERE}/deathclock.service
 cd ${OCWD}
 ##
 # Add in skin, and radio plugins
@@ -64,7 +65,6 @@ cd ${OCWD}
 cd /home/osmc/.kodi/addons
 ln -s ${HERE}/skin.sediqskin
 ln -s ${HERE}/plugin.audio.sediq
-ln -s ${HERE}/plugin.service.sediqfm
 cd ${OCWD}
 ##
 # Boot options for iqcaudio
@@ -73,14 +73,8 @@ sudo sed -i".bak" -e 's/^\(dtoverlay.*\)/#\1/' \
                   -e 's/^\(dtparam=audio=.*\)/#\1/' \
                   -e '$ s/$/\ndtoverlay=iqaudio-dacplus,auto_mute_amp\ndtparam=audio=off/' /boot/config.txt
 ##
-# Install the streamer 
+# Install the RTL rules and modprobe setup
 ##
-pwd
-git clone https://github.com/AlbrechtL/rtl_fm_streamer.git
-#cd rtl_fm_streamer/
-#cmake . -DCMAKE_INSTALL_PREFIX:PATH=/usr 
-#make
-#sudo make install
 sudo cp rtl-sdr.rules /etc/udev/rules.d/99-rtl-sdr.rules
 sudo cp ../blacklist-rtl.conf /etc/modprobe.d/
 echo "[INSTALL] Reboot now!"
