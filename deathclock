@@ -1,31 +1,50 @@
 #!/bin/bash
 
 # Constants
-PIN="4"
+PIN="23"
 PIN_PATH="/sys/class/gpio/gpio${PIN}/"
+# Control backlight if available
 BL_POWER_PATH="/sys/class/backlight/rpi_backlight/bl_power"
+if [ ! -f "${BL_POWER_PATH}" ]
+then
+    BL_POWER_PATH="/dev/null"
+fi
 
 # Setup PIN visibility and direction
-echo "${PIN}" > /sys/class/gpio/export
+if [ ! -d ${PIN_PATH} ]
+then
+    echo "${PIN}" > /sys/class/gpio/export 
+fi
 echo "in" > "${PIN_PATH}/direction"
+echo 0 > "${PIN_PATH}/active_low"
 
 # Main program loop
 let count=0
 while (( 1 ))
 do
+    let value="$(cat "${PIN_PATH}/value" )"
     # If the count has been see 15 times (30 seconds) then shutdown!
     if (( ${count} >= 15 ))
     then
+        echo "[DEATHCLOCK] Goodnight my sweet angel"
         poweroff
-    fi
     # On a high-value, the system should reset count and operate as normal
-    else if (( $(cat "${PIN_PATH}/value" ) ))
+    elif (( ${value} == 1  ))
     then
+        # Update user as to status change
+        if (( ${count} != 0 ))
+        then
+            echo "[DEATHCLOCK] All-clear, life may continue."
+        fi
         let count=0
         echo "1" > "${BL_POWER_PATH}"
     # On a low-value (off) the car requested shutdown
     else
+        let remaining=(15-$count)*2
+        echo "[DEATHCLOCK] Detected power-off condition. Reboot in: ${remaining} seconds"
         let count=$count+1
         echo "0" > "${BL_POWER_PATH}"
     fi
+    # Sleep for 2 seconds
+    sleep 2
 done
