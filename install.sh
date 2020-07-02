@@ -42,7 +42,7 @@ tar -xJf gst-omx-1.10.4.tar.xz
 cd gst-omx-1.10.4
 ./configure --with-omx-header-path=/opt/vc/include/IL --with-omx-target=rpi
 make -j4
-#sudo make install
+sudo make install
 ##
 # Link in the installed library
 ##
@@ -58,6 +58,8 @@ cd ${OCWD}
 cd  /lib/systemd/system/
 sudo ln -s ${HERE}/camera/camera.service
 sudo ln -s ${HERE}/deathclock.service
+sudo systemctl enable deathclock
+sudo systemctl enable camera
 cd ${OCWD}
 ##
 # Add in skin, and radio plugins
@@ -76,5 +78,5 @@ sudo sed -i".bak" -e 's/^\(dtoverlay.*\)/#\1/' \
 # Install the RTL rules and modprobe setup
 ##
 sudo cp rtl-sdr.rules /etc/udev/rules.d/99-rtl-sdr.rules
-sudo cp ../blacklist-rtl.conf /etc/modprobe.d/
+sudo cp ./blacklist-rtl.conf /etc/modprobe.d/
 echo "[INSTALL] Reboot now!"
