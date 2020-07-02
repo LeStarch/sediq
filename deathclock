@@ -37,13 +37,13 @@ do
             echo "[DEATHCLOCK] All-clear, life may continue."
         fi
         let count=0
-        echo "1" > "${BL_POWER_PATH}"
+        echo "0" > "${BL_POWER_PATH}"
     # On a low-value (off) the car requested shutdown
     else
         let remaining=(15-$count)*2
         echo "[DEATHCLOCK] Detected power-off condition. Reboot in: ${remaining} seconds"
         let count=$count+1
-        echo "0" > "${BL_POWER_PATH}"
+        echo "1" > "${BL_POWER_PATH}"
     fi
     # Sleep for 2 seconds
     sleep 2
