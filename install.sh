@@ -71,8 +71,7 @@ cd ${OCWD}
 ##
 # Boot options for iqcaudio
 ##
-sudo sed -i".bak" -e 's/^\(dtoverlay.*\)/#\1/' \
-                  -e 's/^\(dtparam=audio=.*\)/#\1/' \
+sudo sed -i".bak" -e 's/^\(dtparam=audio=.*\)/#\1/' \
                   -e '$ s/$/\ndtoverlay=iqaudio-dacplus,auto_mute_amp\ndtparam=audio=off/' /boot/config.txt
 ##
 # Install the RTL rules and modprobe setup

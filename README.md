@@ -24,4 +24,14 @@ sediq/install.sh
 **Note:** this may require administration rights.
 
 
+## Boot Speed
 
+**Untested**
+
+Add to /boot/config.txt
+```
+# Boot improvements
+dtoverlay=pi3-disable-bt
+dtoverlay=sdtweak,overclock_50=100
+boot_delay=0
+```
