@@ -26,7 +26,7 @@ sudo apt-get install \
   libgstreamer-plugins-base1.0-dev \
   rbp-userland-dev-osmc \
   rtl-sdr \
-  gstreamer1.0-plugins-bad
+  gstreamer1.0-plugins-bad i2c-tools
 ##
 # Update submodules
 ##
@@ -69,10 +69,12 @@ ln -s ${HERE}/skin.sediqskin
 ln -s ${HERE}/plugin.audio.sediq
 cd ${OCWD}
 ##
-# Boot options for iqcaudio
+# Boot options for iqcaudio and boot speed
 ##
 sudo sed -i".bak" -e 's/^\(dtparam=audio=.*\)/#\1/' \
                   -e '$ s/$/\ndtoverlay=iqaudio-dacplus,auto_mute_amp\ndtparam=audio=off/' /boot/config.txt
+sudo cat config.txt.add >> /boot/config.txt
+sudo cat modules.add >> /etc/modules
 ##
 # Install the RTL rules and modprobe setup
 ##

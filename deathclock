@@ -9,6 +9,8 @@ if [ ! -f "${BL_POWER_PATH}" ]
 then
     BL_POWER_PATH="/dev/null"
 fi
+# Setup HW clock
+hwclock -s
 
 # Setup PIN visibility and direction
 if [ ! -d ${PIN_PATH} ]
