@@ -18,7 +18,7 @@ then
     echo "${PIN}" > /sys/class/gpio/export 
 fi
 echo "in" > "${PIN_PATH}/direction"
-echo 0 > "${PIN_PATH}/active_low"
+echo 1 > "${PIN_PATH}/active_low"
 
 # Main program loop
 let count=0
