@@ -6,6 +6,7 @@ Wants = network-online.target
 [Service]
 Type = simple
 ExecStart = /home/osmc/sediq/deathclock
+ExecStop = /home/osmc/sediq/shutdown
 
 [Install]
 WantedBy = multi-user.target

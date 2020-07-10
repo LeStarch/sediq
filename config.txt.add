@@ -1,0 +1,6 @@
+# Realtime clock overlay
+dtoverlay=i2c-rtc,ds3231
+# Boot improvements
+dtoverlay=pi3-disable-bt
+dtoverlay=sdtweak,overclock_50=100
+boot_delay=0

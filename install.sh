@@ -26,7 +26,7 @@ sudo apt-get install \
   libgstreamer-plugins-base1.0-dev \
   rbp-userland-dev-osmc \
   rtl-sdr \
-  gstreamer1.0-plugins-bad
+  gstreamer1.0-plugins-bad i2c-tools
 ##
 # Update submodules
 ##
@@ -69,14 +69,24 @@ ln -s ${HERE}/skin.sediqskin
 ln -s ${HERE}/plugin.audio.sediq
 cd ${OCWD}
 ##
-# Boot options for iqcaudio
+# Boot options for iqcaudio and boot speed
 ##
-sudo sed -i".bak" -e 's/^\(dtoverlay.*\)/#\1/' \
-                  -e 's/^\(dtparam=audio=.*\)/#\1/' \
+sudo sed -i".bak" -e 's/^\(dtparam=audio=.*\)/#\1/' \
                   -e '$ s/$/\ndtoverlay=iqaudio-dacplus,auto_mute_amp\ndtparam=audio=off/' /boot/config.txt
+sudo cat config.txt.add >> /boot/config.txt
+sudo cat modules.add >> /etc/modules
 ##
 # Install the RTL rules and modprobe setup
 ##
 sudo cp rtl-sdr.rules /etc/udev/rules.d/99-rtl-sdr.rules
 sudo cp ./blacklist-rtl.conf /etc/modprobe.d/
+##
+# Install new splash screens
+##
+sudo cp splash.png splash_sad.png /usr/
+##
+# Auto backup camera
+##
+cp camera/autoexec.py /home/osmc/.kodi/userdata
+./hwclock-setup.sh
 echo "[INSTALL] Reboot now!"

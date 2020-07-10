@@ -1,5 +1,5 @@
 #!/bin/sh
-VIDEO=`ls /dev/video* | head -1`
+VIDEO="/dev/video0"
 PORT="8085"
 FILE="/home/osmc/Movies/recording.mp4"
 FILE_BK="/home/osmc/Movies/recording-previous.mp4"
@@ -12,7 +12,8 @@ fi
 #Loop on starting up the pipeline
 while `echo -n`
 do
-    gst-launch-1.0 v4l2src device="${VIDEO}" ! omxh264enc ! tee name=t ! \
+    gst-launch-1.0 v4l2src device="${VIDEO}" ! image/jpeg,width=1920,height=1080 ! \
+	tee name=t ! \
         queue ! tcpserversink max-lateness="18000000" port="${PORT}" t. ! \
         queue ! filesink location="${FILE}"
     sleep 1
