@@ -88,4 +88,5 @@ sudo cp splash.png splash_sad.png /usr/
 # Auto backup camera
 ##
 cp camera/autoexec.py /home/osmc/.kodi/userdata
+./hwclock-setup.sh
 echo "[INSTALL] Reboot now!"
