@@ -84,4 +84,8 @@ sudo cp ./blacklist-rtl.conf /etc/modprobe.d/
 # Install new splash screens
 ##
 sudo cp splash.png splash_sad.png /usr/
+##
+# Auto backup camera
+##
+cp camera/autoexec.py /home/osmc/.kodi/userdata
 echo "[INSTALL] Reboot now!"
