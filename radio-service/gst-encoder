@@ -1,0 +1,9 @@
+#!/bin/sh
+gst-launch-1.0 filesrc location=/tmp/radio-fifo ! queue ! \
+    rawaudioparse sample-rate=24000 ! queue ! \
+    audioconvert ! queue ! \
+    audiocheblimit cutoff=6000 ! queue ! \
+    vorbisenc ! queue ! \
+    oggmux ! queue ! \
+    tcpserversink host=127.0.0.1 port=4953
+
