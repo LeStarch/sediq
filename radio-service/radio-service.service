@@ -1,0 +1,10 @@
+[Unit]
+Description = Radio Coordination Service
+After = graphics.service
+
+[Service]
+Type = simple
+ExecStart = /opt/radio-service/radio-service
+
+[Install]
+WantedBy = multi-user.target

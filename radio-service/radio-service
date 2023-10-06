@@ -1,0 +1,19 @@
+#!/bin/sh
+DIR="`dirname $0`"
+DIR="`cd $DIR; pwd`"
+
+VIRTUAL_ENV="${DIR}/venv"
+
+if [ ! -d "${VIRTUAL_ENV}" ]
+then
+    python3 -m venv "${VIRTUAL_ENV}"
+    . "${VIRTUAL_ENV}/bin/activate"
+    pip install -r "${DIR}/requirements.txt"
+else
+    . "${VIRTUAL_ENV}/bin/activate"
+fi
+cd "${DIR}"
+python -m radio.handler &
+sleep 1
+"${DIR}/gst-encoder" >/dev/null &
+wait
