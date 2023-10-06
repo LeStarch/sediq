@@ -16,7 +16,7 @@ import time
 import urllib
 import subprocess
 
-import urlparse
+import urllib.parse 
 import xbmc
 import xbmcgui
 import xbmcplugin
@@ -70,17 +70,17 @@ def display():
     """
     for station, freq in load_stations().items():
         human_freq = "{0:.1f}".format(freq / 1e6)
-        li = xbmcgui.ListItem("{0} - {1} MHz FM".format(station, human_freq), iconImage=ICON, thumbnailImage=ICON)
-        li.setProperty('fanart_image', ICON)
+        li = xbmcgui.ListItem("{0} - {1} MHz FM".format(station, human_freq))
+        li.setArt({"icon":ICON})
         li.setProperty("IsPlayable","true")
         li.setInfo(type='Music', infoLabels={"Title": station + " - " + str(human_freq)})
-        xbmcplugin.addDirectoryItem(handle=__handle__, url="{}?{}".format(__url__, urllib.urlencode({"action": "play", "freq": int(freq)})),
+        xbmcplugin.addDirectoryItem(handle=__handle__, url="{}?{}".format(__url__, urllib.parse.urlencode({"action": "play", "freq": int(freq)})),
                                     listitem=li, isFolder=False)
-    li = xbmcgui.ListItem("Input Station", iconImage=ICON, thumbnailImage=ICON)
-    li.setProperty('fanart_image', ICON)
+    li = xbmcgui.ListItem("Input Station")
+    li.setArt({"icon":ICON})
     li.setProperty("IsPlayable","true")
     li.setInfo(type='Music', infoLabels = {"Title": "Input Station"})
-    xbmcplugin.addDirectoryItem(handle=__handle__, url="{}?{}".format(__url__, urllib.urlencode({"action": "new"})),
+    xbmcplugin.addDirectoryItem(handle=__handle__, url="{}?{}".format(__url__, urllib.parse.urlencode({"action": "new"})),
                                 listitem=li, isFolder=False)
     xbmcplugin.endOfDirectory(__handle__)
 
@@ -93,10 +93,10 @@ def play(freq):
     """
     args = [os.path.join(os.path.dirname(__file__), "wrapper.py"), freq]
 
-    xbmc.log("Setting RTL-GST pipeline to: {} Hz".format(freq), level=xbmc.LOGNOTICE)
+    xbmc.log("Setting RTL-GST pipeline to: {} Hz".format(freq), level=xbmc.LOGINFO)
     xbmc.executebuiltin('RunScript("{}",{})'.format(*args))
     xbmc.sleep(2000) # Allow it to boot yo
-    xbmc.log("Attempting to load: {}".format(GST_URL), level=xbmc.LOGNOTICE)
+    xbmc.log("Attempting to load: {}".format(GST_URL), level=xbmc.LOGINFO)
     # Playable item of GST_URL. See: (https://github.com/romanvm/plugin.video.example/blob/master/main.py:206)
     play_item = xbmcgui.ListItem(path=GST_URL)
     # Pass the item to the Kodi player.
@@ -118,7 +118,7 @@ def enter():
     if name != "":
         stations = load_stations()
         stations[name] = freq
-        xbmc.log("Saving stations: {}".format(stations), level=xbmc.LOGNOTICE)
+        xbmc.log("Saving stations: {}".format(stations), level=xbmc.LOGINFO)
         save_stations(stations)
     play(freq)
 
@@ -126,7 +126,7 @@ def route():
     """
     Parses the URL and then routes the input based upon it.
     """
-    parsed = dict(urlparse.parse_qsl(__params__[1:]))
+    parsed = dict(urllib.parse.parse_qsl(__params__[1:]))
     if parsed and parsed["action"] == "play":
         play(parsed["freq"])
     elif parsed and parsed["action"] == "new":

@@ -16,11 +16,14 @@ then
 fi
 # Remove old PID and destroy any running processes
 PID=`pgrep rtl_fm`
-kill "${PID}"
-tail --pid="${PID}" -f /dev/null
+if [ -n "${PID}" ]
+then
+    kill "${PID}"
+    tail --pid="${PID}" -f /dev/null
+fi
 # Command line for rtl_fm
 RTL_FM="rtl_fm -M wbfm -s 200000 -r ${SAMPLE_RATE} -f ${1} -"
 GST_PIPE="gst-launch-1.0 fdsrc  ! rawaudioparse sample-rate=`expr ${SAMPLE_RATE} / 2`  ! audioconvert ! vorbisenc ! oggmux ! tcpserversink"
 # Run the pipeline
-${RTL_FM} 2>/dev/null | ${GST_PIPE} >/dev/null 2>/dev/null &
+${RTL_FM} | ${GST_PIPE} &
 exit 0
