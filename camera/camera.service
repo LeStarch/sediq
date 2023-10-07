@@ -1,0 +1,10 @@
+[Unit]
+Description = Backup camera service
+After = graphics-session.service
+
+[Service]
+Type = simple
+ExecStart = /opt/sediq/camera/camera-service
+
+[Install]
+WantedBy = multi-user.target

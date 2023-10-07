@@ -1,0 +1,2 @@
+#!/bin/bash
+/usr/bin/cvlc --fullscreen "${1:-v4l2:///dev/video0}" :live-caching=0

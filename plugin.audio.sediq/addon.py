@@ -109,7 +109,7 @@ def enter():
     reg = re.compile(r"\d{2,3}.\d")
     station = "nonsense"
     while station != "" and not reg.match(station):
-        station = xbmcgui.Dialog().input("FM Freq (MHz):", "102.7", xbmcgui.INPUT_ALPHANUM)
+        station = xbmcgui.Dialog().input("FM Freq (MHz):", "", xbmcgui.INPUT_ALPHANUM)
         if not reg.match(station) or float(station) > 108 or float(station) < 88:
             xbmcgui.Dialog().ok(
                 "[ERROR] Invalid frequency",
@@ -119,13 +119,13 @@ def enter():
     if station == "":
         return
     freq = int(float(station) * 1e6)
-    name = xbmcgui.Dialog().input("Name (Optional):", "WEBN", xbmcgui.INPUT_ALPHANUM)
+    name = xbmcgui.Dialog().input("Name (Optional):", "", xbmcgui.INPUT_ALPHANUM)
     name = f"{station} MHz" if name == "" else name
     stations = load_stations()
     stations[name] = freq
     xbmc.log("Saving stations: {}".format(stations), level=xbmc.LOGINFO)
     save_stations(stations)
-    display()
+    play(freq)
 
 
 def route():

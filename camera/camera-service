@@ -1,0 +1,32 @@
+#!/bin/bash
+HERE="`dirname $0`"
+HERE="`cd ${HERE}; pwd`"
+
+PIN="24"
+PIN_PATH="/sys/class/gpio/gpio${PIN}/"
+# Setup PIN visibility and direction
+if [ ! -d ${PIN_PATH} ]
+then
+    echo "${PIN}" > /sys/class/gpio/export 
+fi
+echo "in" > "${PIN_PATH}/direction"
+echo 0 > "${PIN_PATH}/active_low"
+
+let count=0
+while (( 1 ))
+do
+    let value="$(cat "${PIN_PATH}/value" )"
+    if (( $count > 2 ))
+    then
+        let count=0
+        pkill show-backup-cameraa
+
+    elif (( ${value:-0} == 1 ))
+    then
+        let count=0
+        ${HERE}/show-backup-camera
+    else
+	let count=$count+1
+    fi
+    sleep 0.2
+done

@@ -30,20 +30,22 @@ cd ${OCWD}
 # Aux video files
 ##
 cd ${KODI}
-ln -s ${HERE}/camera/playercorefactory.xml
+ln -fs ${HERE}/playercorefactory.xml
 cd ${OCWD}
 cd  /lib/systemd/system/
 sudo ln -fs ${HERE}/deathclock.service
 sudo ln -fs ${HERE}/radio-service/radio-service.service
+sudo ln -fs ${HERE}/camera/camera.service
 sudo systemctl enable deathclock
 sudo systemctl enable radio-service
+sudo systemctl enable camera
 cd ${OCWD}
 ##
 # Add in skin, and radio plugins
 ##
 cd ~/.kodi/addons
-ln -s ${HERE}/skin.sediqskin
-ln -s ${HERE}/plugin.audio.sediq
+ln -fs ${HERE}/skin.sediqskin
+ln -fs ${HERE}/plugin.audio.sediq
 cd ${OCWD}
 ##
 # Boot options for iqcaudio and boot speed
@@ -51,8 +53,9 @@ cd ${OCWD}
 ##
 # Install the RTL rules and modprobe setup
 ##
-sudo cp rtl-sdr.rules /etc/udev/rules.d/99-rtl-sdr.rules
-sudo cp ./blacklist-rtl.conf /etc/modprobe.d/
+sudo cp "${HERE}/rtl-sdr.rules" /etc/udev/rules.d/99-rtl-sdr.rules
+sudo cp "${HERE}/blacklist-rtl.conf" /etc/modprobe.d/
+sudo cp "${HERE}/autostart" /etc/xdg/lxsession/LXDE-pi/autostart
 ##
 # Install new splash screens
 ##
