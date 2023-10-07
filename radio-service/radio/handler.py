@@ -3,26 +3,14 @@ import math
 import time
 import signal
 import subprocess
-import zmq
-
 from pathlib import Path
 
 FIFO=Path( "/tmp/radio-fifo")
 SAMPLE_RATE = 48000
 BLOCK_SIZE = 4
 RADIO_ARGS = ["rtl_fm", "-M", "wbfm", "-s", "200000", "-r", str(SAMPLE_RATE), "-", "-f"]
-IPC_SOCKET = "/tmp/radio-handle"
-
-def send_new_frequency(frequency):
-    """ Send a new frequency! """
-    # Build a context
-    context = zmq.Context()
-    socket = context.socket(zmq.REQ)
-    socket.connect(f"ipc://{IPC_SOCKET}")
-    socket.send_string(str(int(frequency)))
-    message = socket.recv_string()
-    socket.close()
-
+IPC_FILE= Path("/tmp/radio-handle")
+INITIAL_CHANNEL = 89300000
 
 
 class RadioManager(object):
@@ -51,9 +39,13 @@ class RadioManager(object):
         print(f"[FREQ] Updating frequency to: {self._frequency}")
         # Kill previous process
         if self._process is not None:
+            print("[PROC] Killing previous process")
             self._process.send_signal(signal.SIGTERM)
+            time.sleep(0.200)
+            self._process.send_signal(signal.SIGKILL)
             self._process.wait()
         # Start new process
+        print("[PROC] Starting radio process")
         self._process = subprocess.Popen(RADIO_ARGS + [str(int(self._frequency))],
                                          bufsize=0, text=False, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
 
@@ -63,7 +55,7 @@ class RadioManager(object):
             return self._process.stdout.read(BLOCK_SIZE)
         return b"\0" * BLOCK_SIZE
 
-def radio_read_loop(radio: RadioManager, socket, fifo_handle):
+def radio_read_loop(radio: RadioManager, file_path: Path, fifo_handle):
     """ Read radio and check for changes, in a loop """
     stop = False
     total_bytes = 0
@@ -79,13 +71,15 @@ def radio_read_loop(radio: RadioManager, socket, fifo_handle):
             last = now
             # Check for a message
             try:
-                message = socket.recv_string(flags=zmq.NOBLOCK)
                 try:
                     fifo_handle.write(b"\0" * int(BLOCK_SIZE * SAMPLE_RATE * 0.5))
-                    radio.frequency(int(message))
-                    socket.send_string("SUCCESS")
+                    with open(file_path, "r") as file_handle:
+                        # Read frequency and compare to valid FM range
+                        frequency = int(file_handle.read().strip())
+                        if frequency <= 108e6 or frequency >= 88e6:
+                            radio.frequency(frequency)
                 except:
-                    socket.send_string("FAIL")
+                    pass
             except:
                 pass
             
@@ -96,21 +90,17 @@ def main():
         os.mkfifo(FIFO)
         print(f"[START] Making FIFO: {FIFO}")
         radio = RadioManager()
-        
-        # Build a context
-        context = zmq.Context()
-        socket = context.socket(zmq.REP)
-        socket.bind(f"ipc://{IPC_SOCKET}")
-
-        # Open the fifo and begin the data loop
+   
+        # Open the latest file and fifo and begin the data loop
+        with open(IPC_FILE, "w") as file_handle:
+            print(f"{INITIAL_CHANNEL}", file=file_handle)
         with open(FIFO, "wb") as file_handle:
-            radio.frequency(89.3e6)
-            radio_read_loop(radio, socket, file_handle)
+            radio.frequency(INITIAL_CHANNEL)
+            radio_read_loop(radio, IPC_FILE, file_handle)
     finally:
         print(f"[STOP] Removing FIFO at: {FIFO}")
         os.remove(FIFO)
-        socket.close()
-        os.remove(f"{IPC_SOCKET}")
+        IPC_FILE.unlink()
 
 
 if __name__ == "__main__":
