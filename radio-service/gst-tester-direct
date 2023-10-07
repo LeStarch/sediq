@@ -1,5 +1,5 @@
 #!/bin/sh
-gst-launch-1.0 filesrc location=/tmp/radio-fifo ! queue ! \
+gst-launch-1.0 filesrc location="${1:-/tmp/radio-output}" ! queue ! \
     rawaudioparse sample-rate=24000 ! queue ! \
     audioconvert ! queue ! \
     audiocheblimit cutoff=6000 ! queue ! \

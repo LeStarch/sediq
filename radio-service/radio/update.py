@@ -1,12 +1,25 @@
+import argparse
 import sys
-from .handler import IPC_FILE
+
+from pathlib import Path
+
+def parse_arguments():
+    """ Parse the command line arguments """
+    parser = argparse.ArgumentParser(description="Write FM audio sample pairs to the given output file-path")
+    parser.add_argument("--update-file", type=Path, help="Path to be checked for a file containing updates",
+                        default=Path("/tmp/radio-update"))
+    parser.add_argument("frequency", type=float, help="Initial frequency", default=89.3)
+    return parser.parse_args()
+
 
 def main():
     """ Main function, Hi Lewis!! """
     try:
-        frequency = int(sys.argv[1])
-        if frequency <= 108e6 and frequency >= 88e6:
-            with open(IPC_FILE, "w") as file_handle:
+        args = parse_arguments()
+        frequency = args.frequency
+        if frequency <= 108.0 and frequency >= 88.0:
+            frequency = int(frequency * 1e6)
+            with open(args.update_file, "w") as file_handle:
                 print(f"Setting to: {frequency}")
                 print(f"{frequency}", file=file_handle)
                 sys.exit(0)
