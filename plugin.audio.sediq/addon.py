@@ -12,14 +12,11 @@ import re
 import sys
 import copy
 import json
-import urllib
+import urllib.parse
 
-import urlparse
 import xbmc
 import xbmcgui
 import xbmcplugin
-
-from radio.handler import send_new_frequency
 
 # Basic Inputs avaliable at every run
 __url__ = sys.argv[0]
@@ -70,17 +67,19 @@ def display():
     """
     for station, freq in load_stations().items():
         human_freq = "{0:.1f}".format(freq / 1e6)
-        li = xbmcgui.ListItem("{0} - {1} MHz FM".format(station, human_freq), iconImage=ICON, thumbnailImage=ICON)
+        li = xbmcgui.ListItem("{0} - {1} MHz FM".format(station, human_freq))
+        li.setArt({"icon": ICON, "thumbnail": ICON})
         li.setProperty('fanart_image', ICON)
         li.setProperty("IsPlayable","true")
         li.setInfo(type='Music', infoLabels={"Title": station + " - " + str(human_freq)})
-        xbmcplugin.addDirectoryItem(handle=__handle__, url="{}?{}".format(__url__, urllib.urlencode({"action": "play", "freq": int(freq)})),
+        xbmcplugin.addDirectoryItem(handle=__handle__, url="{}?{}".format(__url__, urllib.parse.urlencode({"action": "play", "freq": int(freq)})),
                                     listitem=li, isFolder=False)
-    li = xbmcgui.ListItem("Input Station", iconImage=ICON, thumbnailImage=ICON)
+    li = xbmcgui.ListItem("Input Station")
+    li.setArt({"icon": ICON, "thumbnail": ICON})
     li.setProperty('fanart_image', ICON)
     li.setProperty("IsPlayable","true")
     li.setInfo(type='Music', infoLabels = {"Title": "Input Station"})
-    xbmcplugin.addDirectoryItem(handle=__handle__, url="{}?{}".format(__url__, urllib.urlencode({"action": "new"})),
+    xbmcplugin.addDirectoryItem(handle=__handle__, url="{}?{}".format(__url__, urllib.parse.urlencode({"action": "new"})),
                                 listitem=li, isFolder=False)
     xbmcplugin.endOfDirectory(__handle__)
 
@@ -133,7 +132,7 @@ def route():
     """
     Parses the URL and then routes the input based upon it.
     """
-    parsed = dict(urlparse.parse_qsl(__params__[1:]))
+    parsed = dict(urllib.parse.parse_qsl(__params__[1:]))
     if parsed and parsed["action"] == "play":
         play(parsed["freq"])
     elif parsed and parsed["action"] == "new":

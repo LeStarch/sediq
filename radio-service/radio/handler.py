@@ -19,6 +19,7 @@ class RadioManager(object):
     def __init__(self):
         """ Init function setting up member variables """
         self._frequency = 0.0
+        self._active_frequency = 0.0
         self._process = None
 
     def frequency(self, frequency):
@@ -32,7 +33,6 @@ class RadioManager(object):
         if math.isclose(frequency, self._frequency, abs_tol=1e5):
             return
         self._frequency = frequency
-        self.update()
 
     def update(self):
         """ Update the running frequency """
@@ -46,6 +46,7 @@ class RadioManager(object):
             self._process.wait()
         # Start new process
         print("[PROC] Starting radio process")
+        self._active_frequency = self._frequency
         self._process = subprocess.Popen(RADIO_ARGS + [str(int(self._frequency))],
                                          bufsize=0, text=False, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
 
@@ -67,22 +68,19 @@ def radio_read_loop(radio: RadioManager, file_path: Path, fifo_handle):
             fifo_handle.write(read_bytes)
 
         now = time.time()
-        if (now - last) >= 0.5:
+        if file_path.exists() and (now - last) >= 0.5:
             last = now
             # Check for a message
             try:
-                try:
-                    fifo_handle.write(b"\0" * int(BLOCK_SIZE * SAMPLE_RATE * 0.5))
-                    with open(file_path, "r") as file_handle:
-                        # Read frequency and compare to valid FM range
-                        frequency = int(file_handle.read().strip())
-                        if frequency <= 108e6 or frequency >= 88e6:
-                            radio.frequency(frequency)
-                except:
-                    pass
+                fifo_handle.write(b"\0" * int(BLOCK_SIZE * SAMPLE_RATE * 0.5))
+                with open(file_path, "r") as file_handle:
+                    # Read frequency and compare to valid FM range
+                    frequency = int(file_handle.read().strip())
+                    if frequency <= 108e6 or frequency >= 88e6:
+                        radio.frequency(frequency)
             except:
                 pass
-            
+ 
 
 def main():
     """ Main program, Hi Lewis!!! """
@@ -92,8 +90,6 @@ def main():
         radio = RadioManager()
    
         # Open the latest file and fifo and begin the data loop
-        with open(IPC_FILE, "w") as file_handle:
-            print(f"{INITIAL_CHANNEL}", file=file_handle)
         with open(FIFO, "wb") as file_handle:
             radio.frequency(INITIAL_CHANNEL)
             radio_read_loop(radio, IPC_FILE, file_handle)
