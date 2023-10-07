@@ -62,12 +62,16 @@ class RadioManager(object):
         When leaving the radio context, several things are cleaned up. First, the radio process is is killed. Next,
         the output file is closed and removed.
         """
+        print(f"[START] Making FIFO: {self._output_file}")
         self._radio(just_kill=True)
         try:
             self._file_handle.close()
         except:
             pass
-        os.remove(self._output_file)
+        try:
+            self._output_file.unlink()
+        except:
+            pass
 
     def update(self, frequency: int):
         """ Set the frequency when it is different from the currently set frequency
@@ -99,7 +103,8 @@ class RadioManager(object):
             just_kill: only stop but not restart the process
         """
         print(f"[FREQ] Updating frequency to: {self._frequency}")
-        self._file_handle.write(b"\0" * int(self.BLOCK_SIZE * self._sample_rate * self._update_time))
+        if not just_kill:
+            self._file_handle.write(b"\0" * int(self.BLOCK_SIZE * self._sample_rate * self._update_time))
         # Kill previous process
         if self._process is not None:
             print("[PROC] Killing previous process")
