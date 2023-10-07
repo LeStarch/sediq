@@ -91,7 +91,7 @@ def play(freq):
     :param freq: frequency to play
     """
     xbmc.log("Setting RTL-GST pipeline to: {} Hz".format(freq), level=xbmc.LOGINFO)
-    with open("/tmp/radio-handle", "w") as file_handle:
+    with open("/tmp/radio-update", "w") as file_handle:
         print(f"{freq}", file=file_handle)
     xbmc.log("Attempting to load: {}".format(GST_URL), level=xbmc.LOGINFO)
     # Playable item of GST_URL. See: (https://github.com/romanvm/plugin.video.example/blob/master/main.py:206)
