@@ -3,4 +3,3 @@
 sudo update-rc.d -f fake-hwclock remove
 sudo systemctl disable fake-hwclock 
 sudo hwclock -w
-sudo cp hwclock-set /lib/udev/hwclock-set

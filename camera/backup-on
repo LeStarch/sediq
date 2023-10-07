@@ -1,4 +1,0 @@
-#!/bin/sh
-HERE=`dirname $0`
-HERE=`cd $HERE; pwd`
-kodi-send --action="PlayMedia(${HERE}/backup.strm)"

@@ -21,7 +21,9 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 
-from radio.handler import send_new_frequency
+import sys
+xbmc.log(f"System interpreter: {sys.executable}", level=xbmc.LOGINFO)
+
 
 # Basic Inputs avaliable at every run
 __url__ = sys.argv[0]
@@ -96,7 +98,9 @@ def play(freq):
     args = [os.path.join(os.path.dirname(__file__), "wrapper.py"), freq]
 
     xbmc.log("Setting RTL-GST pipeline to: {} Hz".format(freq), level=xbmc.LOGINFO)
-    send_new_frequency(freq)
+    if "zmq" not in sys.modules:
+        import radio.handler
+    radio.handler.send_new_frequency(freq)
     xbmc.log("Attempting to load: {}".format(GST_URL), level=xbmc.LOGINFO)
     # Playable item of GST_URL. See: (https://github.com/romanvm/plugin.video.example/blob/master/main.py:206)
     play_item = xbmcgui.ListItem(path=GST_URL)
@@ -128,6 +132,7 @@ def route():
     Parses the URL and then routes the input based upon it.
     """
     parsed = dict(urllib.parse.parse_qsl(__params__[1:]))
+    xbmc.log("Routing: {}".format(parsed.get("action", "unknown")), level=xbmc.LOGINFO)
     if parsed and parsed["action"] == "play":
         play(parsed["freq"])
     elif parsed and parsed["action"] == "new":
